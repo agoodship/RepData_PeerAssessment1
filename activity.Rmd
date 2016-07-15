@@ -4,16 +4,13 @@ Activity monitoring analysis of an individual over a two month period using fitn
 
 Data includes the number of steps taken by the individual at 5 minute intervals
 
-First, the file is unzipped and the dataset is read in.  The date column is converted from a factor variable to a date.  We also load in the ggplot2 package
+First, the file is unzipped and the dataset is read in
      
 ```{r}
-        library(ggplot2)
-        library(knitr)
         unzip("activity.zip")
         rawdata <- read.csv("activity.csv", header = TRUE)
-        rawdata$date <- strptime(rawdata$date, "%Y-%m-%d")
-        rawdata$date <- as.Date(rawdata$date)
-        ```
+        summary(rawdata)
+```
 
 Next, we calculate the daily total steps taken and present a summary of the data showing mean and median steps taken
 
@@ -25,7 +22,7 @@ Next, we calculate the daily total steps taken and present a summary of the data
 Below is a histogram of the daily steps taken showing the frequency distribution
 
 ```{r}
-        hist(daily_sums$steps, breaks = 8,
+        hist(daily_sums$steps,
                 main = "Daily Steps Frequency",
                 col = "blue",
                 xlab = "Daily Steps Taken",
@@ -75,33 +72,12 @@ With the modified dataset with no missing values, we recreate the above histogra
 
 ```{r}
 daily_sums2 <- aggregate(steps.computed ~ date, activity_data, sum)
-hist(daily_sums2$steps.computed, breaks = 8,
+hist(daily_sums2$steps.computed,
                 main = "Daily Steps Frequency",
                 col = "red",
                 xlab = "Daily Steps Taken",
                 ylab = "Frequency"
  )
         summary(daily_sums2$steps.computed)
-```
-
-We can see that replacing missing values with the means from that interval has no visible effect on the distribution of daily steps, the mean or the median steps taken
-
-To determine whether patterns differ on weekends versus weekdays, we add a column to the dataset showing the day of the week, create a logical vector for weekdays and weekends, and plot the results with a panel each for weekdays and weekends
-
-```{r}
-activity_data$weekday <- weekdays(activity_data$date)
-weekend <- c("Saturday","Sunday")
-activity_data$weekend <- as.factor(ifelse(is.element(activity_data$weekday,weekend),"Weekend", "Weekday"))
-interval_activity_means <- aggregate(steps.computed ~ interval + weekend, activity_data, mean)
-ggplot(interval_activity_means, aes(interval, steps.computed,
-                                 group=weekend, colour=weekend))+
-        geom_line() +
-        ggtitle("Daily Steps Taken, Weekday vs. Weekend") +
-        xlab("Interval") +
-        ylab("Total ") + facet_grid(.~weekend)
-```
-
-```{r}
-knit2html("PA1_template.Rmd")
 ```
 
